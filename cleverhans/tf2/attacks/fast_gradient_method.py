@@ -3,9 +3,11 @@
 import numpy as np
 import tensorflow as tf
 
+##### MITIGATION #####
 from cleverhans.tf2.utils import optimize_linear, compute_gradient
+##### END MITIGATION #####
 
-
+##### MITIGATION #####
 def fast_gradient_method(
     model_fn,
     x,
@@ -40,6 +42,8 @@ def fast_gradient_method(
               memory or for unit tests that intentionally pass strange input)
     :return: a tensor for the adversarial example
     """
+    ##### END MITIGATION #####
+    
     if norm not in [np.inf, 1, 2]:
         raise ValueError("Norm order must be either np.inf, 1, or 2.")
 
@@ -47,18 +51,21 @@ def fast_gradient_method(
         loss_fn = tf.nn.sparse_softmax_cross_entropy_with_logits
 
     asserts = []
-
+    
+     ##### MITIGATION #####
     # If a data range was specified, check that the input was in that range
     if clip_min is not None:
         asserts.append(tf.math.greater_equal(x, clip_min))
 
     if clip_max is not None:
         asserts.append(tf.math.less_equal(x, clip_max))
-
+     ##### END MITIGATION #####
+    
     if y is None:
         # Using model predictions as ground truth to avoid label leaking
         y = tf.argmax(model_fn(x), 1)
 
+    ##### MITIGATION #####
     grad = compute_gradient(model_fn, loss_fn, x, y, targeted)
 
     optimal_perturbation = optimize_linear(grad, eps, norm)
@@ -70,7 +77,7 @@ def fast_gradient_method(
         # We don't currently support one-sided clipping
         assert clip_min is not None and clip_max is not None
         adv_x = tf.clip_by_value(adv_x, clip_min, clip_max)
-
+     ##### END MITIGATION #####
     if sanity_checks:
         assert np.all(asserts)
     return adv_x
