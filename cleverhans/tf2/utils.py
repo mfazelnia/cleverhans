@@ -181,16 +181,16 @@ def compute_gradient(model_fn, loss_fn, x, y, targeted):
     :return: A tensor containing the gradient of the loss with respect to the input tensor.
     """
 
+def compute_gradient(model_fn, loss_fn, x, y, targeted):
+    
     with tf.GradientTape() as g:
         g.watch(x)
-        # Compute loss
         loss = loss_fn(labels=y, logits=model_fn(x))
         if (
             targeted
-        ):  # attack is targeted, minimize loss of target label rather than maximize loss of correct label
+        ):  
             loss = -loss
 
-    # Define gradient of loss wrt input
     grad = g.gradient(loss, x)
     return grad
 
